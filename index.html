@@ -55,8 +55,11 @@
   id="miyajimaOverlay"
   src="./miyajima.mp4"
   muted
+  autoplay
   playsinline
-  loop>
+  webkit-playsinline
+  loop
+  preload="auto">
 </video>
 
 <a-scene
@@ -80,22 +83,26 @@
   const target = document.getElementById("target");
   const overlay = document.getElementById("miyajimaOverlay");
 
+  let isFound = false;
+
   target.addEventListener("targetFound", () => {
-    msg.innerHTML = "認識成功！宮島への旅へ連れていくよ✨";
+    isFound = true;
+
+    msg.innerHTML = "認識成功！画面をタップすると宮島動画が動くよ✨";
     msg.style.background = "yellow";
 
     overlay.style.display = "block";
     overlay.currentTime = 0;
+    overlay.muted = true;
 
-    const playPromise = overlay.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(() => {
-        msg.innerHTML = "認識成功！画面をタップすると動画が再生されます";
-      });
-    }
+    overlay.play().catch(() => {
+      msg.innerHTML = "認識成功！画面をタップして動画を再生してね";
+    });
   });
 
   target.addEventListener("targetLost", () => {
+    isFound = false;
+
     msg.innerHTML = "ステッカーをもう一度映してね";
     msg.style.background = "white";
 
@@ -103,11 +110,16 @@
     overlay.style.display = "none";
   });
 
-  document.body.addEventListener("click", () => {
-    if (overlay.style.display === "block") {
+  function playVideo() {
+    if (isFound) {
+      overlay.style.display = "block";
+      overlay.muted = true;
       overlay.play();
     }
-  });
+  }
+
+  document.body.addEventListener("click", playVideo);
+  document.body.addEventListener("touchstart", playVideo);
 </script>
 
 </body>
