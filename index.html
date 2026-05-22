@@ -1,87 +1,62 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>宮島ちゅーピーAR</title>
+<meta charset="UTF-8">
+<title>宮島ちゅーピーAR</title>
 
-  <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+<script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      font-family: sans-serif;
-      background: #fff;
-    }
+<style>
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: sans-serif;
+}
 
-    #msg {
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      right: 10px;
-      z-index: 9999;
-      background: white;
-      padding: 12px;
-      border-radius: 12px;
-      font-weight: bold;
-      text-align: center;
-      line-height: 1.5;
-    }
+#msg {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  z-index: 9999;
+  background: white;
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: bold;
+  text-align: center;
+}
 
-    #miyajimaOverlay {
-      display: none;
-      position: fixed;
-      left: 50%;
-      top: 52%;
-      transform: translate(-50%, -50%);
-      width: 90vw;
-      max-width: 520px;
-      z-index: 9000;
-      border-radius: 18px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
-    }
-
-    #playBtn {
-      display: none;
-      position: fixed;
-      bottom: 40px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 10000;
-
-      background: #ff6699;
-      color: white;
-      border: none;
-      border-radius: 999px;
-
-      padding: 14px 22px;
-      font-size: 18px;
-      font-weight: bold;
-
-      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-    }
-  </style>
+#miyajimaOverlay {
+  display: none;
+  position: fixed;
+  left: 50%;
+  top: 52%;
+  transform: translate(-50%, -50%);
+  width: 90vw;
+  max-width: 520px;
+  z-index: 10000;
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  background: black;
+}
+</style>
 </head>
 
 <body>
 
 <div id="msg">
-  宮島ちゅーピーステッカーを映してね！
+  宮島ちゅーピーステッカーを映してね
 </div>
 
 <video
   id="miyajimaOverlay"
   src="./miyajima.mp4"
+  controls
   playsinline
   webkit-playsinline
-  loop
-  preload="auto">
+  preload="metadata">
 </video>
-
-<button id="playBtn">
-  ▶ 宮島動画を再生
-</button>
 
 <a-scene
   mindar-image="imageTargetSrc: ./targets.mind; autoStart: true;"
@@ -95,46 +70,31 @@
     wasd-controls="enabled: false">
   </a-camera>
 
-  <a-entity
-    mindar-image-target="targetIndex: 0"
-    id="target">
-  </a-entity>
+  <a-entity mindar-image-target="targetIndex: 0" id="target"></a-entity>
 
 </a-scene>
 
 <script>
-  const msg = document.getElementById("msg");
-  const target = document.getElementById("target");
-  const overlay = document.getElementById("miyajimaOverlay");
+const msg = document.getElementById("msg");
+const target = document.getElementById("target");
+const video = document.getElementById("miyajimaOverlay");
 
-  let isFound = false;
+target.addEventListener("targetFound", () => {
+  msg.innerHTML = "認識成功！動画の再生ボタンを押してね";
+  msg.style.background = "yellow";
 
-  target.addEventListener("targetFound", () => {
-    isFound = true;
-    msg.innerHTML = "認識成功！<br>画面をタップすると宮島動画が流れるよ✨";
-    msg.style.background = "yellow";
+  video.style.display = "block";
+  video.currentTime = 0;
+});
 
-    overlay.style.display = "block";
-    overlay.load();
-  });
+target.addEventListener("targetLost", () => {
+  msg.innerHTML = "ステッカーをもう一度映してね";
+  msg.style.background = "white";
 
-  target.addEventListener("targetLost", () => {
-    isFound = false;
-    msg.innerHTML = "ステッカーをもう一度映してね";
-    msg.style.background = "white";
-
-    overlay.pause();
-    overlay.currentTime = 0;
-    overlay.style.display = "none";
-  });
-
-  document.addEventListener("touchend", () => {
-    if (!isFound) return;
-
-    overlay.muted = false;
-    overlay.play();
-    msg.innerHTML = "再生中🔊";
-  });
+  video.pause();
+  video.currentTime = 0;
+  video.style.display = "none";
+});
 </script>
 
 </body>
