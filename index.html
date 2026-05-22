@@ -106,38 +106,34 @@
   const msg = document.getElementById("msg");
   const target = document.getElementById("target");
   const overlay = document.getElementById("miyajimaOverlay");
-  const playBtn = document.getElementById("playBtn");
+
+  let isFound = false;
 
   target.addEventListener("targetFound", () => {
-
-    msg.innerHTML =
-      "認識成功！<br>再生ボタンを押すと宮島動画が流れるよ✨";
-
+    isFound = true;
+    msg.innerHTML = "認識成功！<br>画面をタップすると宮島動画が流れるよ✨";
     msg.style.background = "yellow";
 
     overlay.style.display = "block";
-    playBtn.style.display = "block";
+    overlay.load();
   });
 
   target.addEventListener("targetLost", () => {
-
-    msg.innerHTML =
-      "ステッカーをもう一度映してね";
-
+    isFound = false;
+    msg.innerHTML = "ステッカーをもう一度映してね";
     msg.style.background = "white";
 
     overlay.pause();
     overlay.currentTime = 0;
-
     overlay.style.display = "none";
-    playBtn.style.display = "none";
   });
 
-  playBtn.addEventListener("click", () => {
+  document.addEventListener("touchend", () => {
+    if (!isFound) return;
 
+    overlay.muted = false;
     overlay.play();
-
-    playBtn.innerHTML = "🔊 再生中";
+    msg.innerHTML = "再生中🔊";
   });
 </script>
 
