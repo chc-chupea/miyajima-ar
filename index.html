@@ -51,7 +51,13 @@
   宮島ちゅーピーステッカーを映してね
 </div>
 
-<img id="miyajimaOverlay" src="./miyajima.jpg" alt="宮島背景">
+<video
+  id="miyajimaOverlay"
+  src="./miyajima.mp4"
+  muted
+  playsinline
+  loop>
+</video>
 
 <a-scene
   mindar-image="imageTargetSrc: ./targets.mind; autoStart: true;"
@@ -75,15 +81,32 @@
   const overlay = document.getElementById("miyajimaOverlay");
 
   target.addEventListener("targetFound", () => {
-    msg.innerHTML = "認識成功！宮島の世界が広がるよ✨";
+    msg.innerHTML = "認識成功！宮島への旅へ連れていくよ✨";
     msg.style.background = "yellow";
+
     overlay.style.display = "block";
+    overlay.currentTime = 0;
+
+    const playPromise = overlay.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        msg.innerHTML = "認識成功！画面をタップすると動画が再生されます";
+      });
+    }
   });
 
   target.addEventListener("targetLost", () => {
     msg.innerHTML = "ステッカーをもう一度映してね";
     msg.style.background = "white";
+
+    overlay.pause();
     overlay.style.display = "none";
+  });
+
+  document.body.addEventListener("click", () => {
+    if (overlay.style.display === "block") {
+      overlay.play();
+    }
   });
 </script>
 
