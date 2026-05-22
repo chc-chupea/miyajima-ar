@@ -64,16 +64,14 @@ body {
 const msg = document.getElementById("msg");
 const target = document.getElementById("target");
 
-window.addEventListener("load", () => {
-  msg.innerHTML = "カメラが起動したら、ステッカーを画面いっぱいに映してください";
-});
-
 target.addEventListener("targetFound", () => {
-  msg.innerHTML = "認識しました！宮島画像が出れば成功です";
+  msg.innerHTML = "認識成功！targetFoundが動きました";
+  msg.style.background = "yellow";
 });
 
 target.addEventListener("targetLost", () => {
-  msg.innerHTML = "見失いました。もう一度ステッカー全体を映してください";
+  msg.innerHTML = "見失いました";
+  msg.style.background = "white";
 });
 </script>
 
