@@ -19,30 +19,31 @@ body {
   top: 10px;
   left: 10px;
   right: 10px;
-  z-index: 9999;
+  z-index: 999999;
   background: white;
   padding: 12px;
   border-radius: 12px;
   font-weight: bold;
   text-align: center;
-  line-height: 1.5;
 }
 
-#openVideoBtn {
+#miyajimaOverlay {
   display: none;
   position: fixed;
-  bottom: 40px;
   left: 50%;
-  transform: translateX(-50%);
-  z-index: 10000;
-  background: #ff6699;
-  color: white;
-  text-decoration: none;
-  border-radius: 999px;
-  padding: 16px 24px;
-  font-size: 18px;
-  font-weight: bold;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  top: 52%;
+  transform: translate(-50%, -50%);
+  width: 90vw;
+  max-width: 520px;
+  z-index: 999998;
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  background: black;
+  pointer-events: auto;
+}
+
+a-scene {
+  pointer-events: none;
 }
 </style>
 </head>
@@ -53,12 +54,14 @@ body {
   宮島ちゅーピーステッカーを映してね
 </div>
 
-<a
-  id="openVideoBtn"
-  href="./miyajima.mp4"
-  target="_blank">
-  ▶ 宮島動画を見る
-</a>
+<video
+  id="miyajimaOverlay"
+  src="./miyajima.mp4"
+  controls
+  playsinline
+  webkit-playsinline
+  preload="metadata">
+</video>
 
 <a-scene
   mindar-image="imageTargetSrc: ./targets.mind; autoStart: true;"
@@ -79,18 +82,23 @@ body {
 <script>
 const msg = document.getElementById("msg");
 const target = document.getElementById("target");
-const openVideoBtn = document.getElementById("openVideoBtn");
+const video = document.getElementById("miyajimaOverlay");
 
 target.addEventListener("targetFound", () => {
-  msg.innerHTML = "認識成功！<br>ボタンを押すと宮島への旅が始まるよ✨";
+  msg.innerHTML = "認識成功！動画の再生ボタンを押してね";
   msg.style.background = "yellow";
-  openVideoBtn.style.display = "block";
+
+  video.style.display = "block";
+  video.currentTime = 0;
 });
 
 target.addEventListener("targetLost", () => {
   msg.innerHTML = "ステッカーをもう一度映してね";
   msg.style.background = "white";
-  openVideoBtn.style.display = "none";
+
+  video.pause();
+  video.currentTime = 0;
+  video.style.display = "none";
 });
 </script>
 
