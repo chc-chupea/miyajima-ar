@@ -39,14 +39,9 @@
 <a-scene
   mindar-image="imageTargetSrc: ./targets.mind; autoStart: true;"
   embedded
-  color-space="sRGB"
-  renderer="colorManagement: true; alpha: true;"
+  renderer="colorManagement: true; physicallyCorrectLights: true;"
   vr-mode-ui="enabled: false"
   device-orientation-permission-ui="enabled: false">
-
-  <a-assets>
-    <img id="miyajima" src="./miyajima.jpg">
-  </a-assets>
 
   <a-camera
     position="0 0 0"
@@ -56,12 +51,11 @@
 
   <a-entity mindar-image-target="targetIndex: 0" id="target">
 
-    <!-- まずは認識確認用：赤い板 -->
     <a-plane
       color="red"
       width="1"
       height="1"
-      position="0 0 0.01"
+      position="0 0 0"
       rotation="0 0 0"
       material="side: double; shader: flat;">
     </a-plane>
@@ -79,7 +73,7 @@
   });
 
   target.addEventListener("targetFound", () => {
-    msg.innerHTML = "認識成功！赤い板が出れば表示も成功です";
+    msg.innerHTML = "認識成功！赤い板がステッカー上に出れば表示成功です";
     msg.style.background = "yellow";
   });
 
