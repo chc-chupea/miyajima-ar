@@ -12,6 +12,7 @@
       margin: 0;
       overflow: hidden;
       font-family: sans-serif;
+      background: #fff;
     }
 
     #msg {
@@ -27,19 +28,34 @@
       text-align: center;
       line-height: 1.5;
     }
+
+    #miyajimaOverlay {
+      display: none;
+      position: fixed;
+      left: 50%;
+      top: 52%;
+      transform: translate(-50%, -50%);
+      width: 90vw;
+      max-width: 520px;
+      z-index: 9000;
+      border-radius: 18px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+      pointer-events: none;
+    }
   </style>
 </head>
 
 <body>
 
 <div id="msg">
-  読み込み中…カメラ許可が出たら許可してください
+  宮島ちゅーピーステッカーを映してね
 </div>
+
+<img id="miyajimaOverlay" src="./miyajima.jpg" alt="宮島背景">
 
 <a-scene
   mindar-image="imageTargetSrc: ./targets.mind; autoStart: true;"
   embedded
-  renderer="colorManagement: true; physicallyCorrectLights: true;"
   vr-mode-ui="enabled: false"
   device-orientation-permission-ui="enabled: false">
 
@@ -49,37 +65,25 @@
     wasd-controls="enabled: false">
   </a-camera>
 
-  <a-entity mindar-image-target="targetIndex: 0" id="target">
-
-    <a-plane
-      color="red"
-      width="1"
-      height="1"
-      position="0 0 0"
-      rotation="0 0 0"
-      material="side: double; shader: flat;">
-    </a-plane>
-
-  </a-entity>
+  <a-entity mindar-image-target="targetIndex: 0" id="target"></a-entity>
 
 </a-scene>
 
 <script>
   const msg = document.getElementById("msg");
   const target = document.getElementById("target");
-
-  window.addEventListener("load", () => {
-    msg.innerHTML = "カメラが起動したら、ステッカーを画面いっぱいに映してください";
-  });
+  const overlay = document.getElementById("miyajimaOverlay");
 
   target.addEventListener("targetFound", () => {
-    msg.innerHTML = "認識成功！赤い板がステッカー上に出れば表示成功です";
+    msg.innerHTML = "認識成功！宮島の世界が広がるよ✨";
     msg.style.background = "yellow";
+    overlay.style.display = "block";
   });
 
   target.addEventListener("targetLost", () => {
-    msg.innerHTML = "見失いました。もう一度ステッカー全体を映してください";
+    msg.innerHTML = "ステッカーをもう一度映してね";
     msg.style.background = "white";
+    overlay.style.display = "none";
   });
 </script>
 
