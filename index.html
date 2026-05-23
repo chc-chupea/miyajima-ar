@@ -20,7 +20,7 @@
       top: 10px;
       left: 10px;
       right: 10px;
-      z-index: 9999;
+      z-index: 999999;
       background: white;
       padding: 12px;
       border-radius: 12px;
@@ -38,9 +38,14 @@
       transform: translate(-50%, -50%);
       width: 90vw;
       max-width: 520px;
-      z-index: 9000;
+      z-index: 999998;
       border-radius: 18px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      background: black;
+      pointer-events: auto;
+    }
+
+    a-scene {
       pointer-events: none;
     }
   </style>
@@ -54,13 +59,10 @@
 
 <video
   id="videoOverlay"
-  src="./miyajima.mp4"
-  muted
-  autoplay
+  controls
   playsinline
   webkit-playsinline
-  loop
-  preload="auto">
+  preload="metadata">
 </video>
 
 <img id="imageOverlay" src="" alt="AR画像">
@@ -97,6 +99,8 @@
   function hideAll() {
     videoOverlay.pause();
     videoOverlay.currentTime = 0;
+    videoOverlay.removeAttribute("src");
+    videoOverlay.load();
     videoOverlay.style.display = "none";
 
     imageOverlay.style.display = "none";
@@ -106,17 +110,12 @@
   function showVideo(message, videoSrc) {
     hideAll();
 
-    msg.innerHTML = message;
+    msg.innerHTML = message + "<br>動画の再生ボタンを押してね";
     msg.style.background = "yellow";
 
     videoOverlay.src = videoSrc;
     videoOverlay.style.display = "block";
-    videoOverlay.currentTime = 0;
-    videoOverlay.muted = true;
-
-    videoOverlay.play().catch(() => {
-      msg.innerHTML = message + "<br>画面をタップすると動画が再生されます";
-    });
+    videoOverlay.load();
   }
 
   function showImage(message, imageSrc) {
@@ -167,12 +166,6 @@
   kure.addEventListener("targetLost", resetMessage);
   fukuyama.addEventListener("targetLost", resetMessage);
   chugokunp.addEventListener("targetLost", resetMessage);
-
-  document.body.addEventListener("touchstart", () => {
-    if (videoOverlay.style.display === "block") {
-      videoOverlay.play();
-    }
-  });
 </script>
 
 </body>
