@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>宮島ちゅーピーAR</title>
+  <title>ちゅーピーAR</title>
 
   <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
@@ -29,7 +29,8 @@
       line-height: 1.5;
     }
 
-    #miyajimaOverlay {
+    #videoOverlay,
+    #imageOverlay {
       display: none;
       position: fixed;
       left: 50%;
@@ -48,11 +49,11 @@
 <body>
 
 <div id="msg">
-  宮島ちゅーピーステッカーを映してね
+  ステッカーを映してね
 </div>
 
 <video
-  id="miyajimaOverlay"
+  id="videoOverlay"
   src="./miyajima.mp4"
   muted
   autoplay
@@ -61,6 +62,8 @@
   loop
   preload="auto">
 </video>
+
+<img id="imageOverlay" src="" alt="AR画像">
 
 <a-scene
   mindar-image="imageTargetSrc: ./targets.mind; autoStart: true;"
@@ -74,43 +77,100 @@
     wasd-controls="enabled: false">
   </a-camera>
 
-  <a-entity
-    mindar-image-target="targetIndex: 0"
-    id="target">
-  </a-entity>
+  <a-entity mindar-image-target="targetIndex: 0" id="miyajima"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 1" id="kure"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 2" id="fukuyama"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 3" id="chugokunp"></a-entity>
 
 </a-scene>
 
 <script>
   const msg = document.getElementById("msg");
-  const target = document.getElementById("target");
-  const overlay = document.getElementById("miyajimaOverlay");
+  const videoOverlay = document.getElementById("videoOverlay");
+  const imageOverlay = document.getElementById("imageOverlay");
 
-  target.addEventListener("targetFound", () => {
-    msg.innerHTML = "認識成功！<br>ちゅーピーが宮島の旅に連れて行くよ✨";
+  const miyajima = document.getElementById("miyajima");
+  const kure = document.getElementById("kure");
+  const fukuyama = document.getElementById("fukuyama");
+  const chugokunp = document.getElementById("chugokunp");
+
+  function hideAll() {
+    videoOverlay.pause();
+    videoOverlay.currentTime = 0;
+    videoOverlay.style.display = "none";
+
+    imageOverlay.style.display = "none";
+    imageOverlay.src = "";
+  }
+
+  function showVideo(message, videoSrc) {
+    hideAll();
+
+    msg.innerHTML = message;
     msg.style.background = "yellow";
 
-    overlay.style.display = "block";
-    overlay.currentTime = 0;
-    overlay.muted = true;
+    videoOverlay.src = videoSrc;
+    videoOverlay.style.display = "block";
+    videoOverlay.currentTime = 0;
+    videoOverlay.muted = true;
 
-    overlay.play().catch(() => {
-      msg.innerHTML = "認識成功！画面をタップすると動画が再生されます";
+    videoOverlay.play().catch(() => {
+      msg.innerHTML = message + "<br>画面をタップすると動画が再生されます";
     });
+  }
+
+  function showImage(message, imageSrc) {
+    hideAll();
+
+    msg.innerHTML = message;
+    msg.style.background = "yellow";
+
+    imageOverlay.src = imageSrc;
+    imageOverlay.style.display = "block";
+  }
+
+  miyajima.addEventListener("targetFound", () => {
+    showVideo(
+      "ちゅーピーが宮島の旅へ連れて行くよ✨",
+      "./miyajima.mp4"
+    );
   });
 
-  target.addEventListener("targetLost", () => {
+  kure.addEventListener("targetFound", () => {
+    showImage(
+      "ちゅーピーが呉の旅へ連れて行くよ✨",
+      "./kure.jpg"
+    );
+  });
+
+  fukuyama.addEventListener("targetFound", () => {
+    showImage(
+      "ちゅーピーが福山の旅へ連れて行くよ✨",
+      "./fukuyama.jpg"
+    );
+  });
+
+  chugokunp.addEventListener("targetFound", () => {
+    showImage(
+      "新しくなった中国新聞デジタルをご紹介！",
+      "./chugokunp.jpg"
+    );
+  });
+
+  function resetMessage() {
     msg.innerHTML = "ステッカーをもう一度映してね";
     msg.style.background = "white";
+    hideAll();
+  }
 
-    overlay.pause();
-    overlay.currentTime = 0;
-    overlay.style.display = "none";
-  });
+  miyajima.addEventListener("targetLost", resetMessage);
+  kure.addEventListener("targetLost", resetMessage);
+  fukuyama.addEventListener("targetLost", resetMessage);
+  chugokunp.addEventListener("targetLost", resetMessage);
 
   document.body.addEventListener("touchstart", () => {
-    if (overlay.style.display === "block") {
-      overlay.play();
+    if (videoOverlay.style.display === "block") {
+      videoOverlay.play();
     }
   });
 </script>
