@@ -29,15 +29,43 @@
       line-height: 1.5;
     }
 
+    #scanGuide {
+      position: fixed;
+      left: 7vw;
+      right: 7vw;
+      top: 86px;
+      height: 54vh;
+      z-index: 999997;
+      border: 5px dashed rgba(255, 235, 0, 0.95);
+      border-radius: 22px;
+      pointer-events: none;
+      box-sizing: border-box;
+    }
+
+    #scanGuide::before {
+      content: "この枠いっぱいに1枚だけ映してね";
+      position: absolute;
+      top: -42px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-weight: bold;
+      background: rgba(255,255,255,0.9);
+      border-radius: 12px;
+      padding: 8px;
+    }
+
     #videoOverlay,
     #imageOverlay {
       display: none;
       position: fixed;
       left: 50%;
-      top: 52%;
-      transform: translate(-50%, -50%);
+      bottom: 24px;
+      transform: translateX(-50%);
       width: 90vw;
       max-width: 520px;
+      max-height: 34vh;
+      object-fit: contain;
       z-index: 999998;
       border-radius: 18px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.3);
@@ -46,6 +74,10 @@
     }
 
     a-scene {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
       pointer-events: none;
     }
   </style>
@@ -53,9 +85,8 @@
 
 <body>
 
-<div id="msg">
-  ステッカーを映してね
-</div>
+<div id="msg">ステッカーを1枚だけ大きく映してね</div>
+<div id="scanGuide"></div>
 
 <video
   id="videoOverlay"
@@ -91,10 +122,35 @@
   const videoOverlay = document.getElementById("videoOverlay");
   const imageOverlay = document.getElementById("imageOverlay");
 
-  const miyajima = document.getElementById("miyajima");
-  const kure = document.getElementById("kure");
-  const fukuyama = document.getElementById("fukuyama");
-  const chugokunp = document.getElementById("chugokunp");
+  const targets = [
+    {
+      el: document.getElementById("miyajima"),
+      type: "video",
+      message: "ちゅーピーが宮島の旅へ連れて行くよ✨",
+      src: "./miyajima.mp4"
+    },
+    {
+      el: document.getElementById("kure"),
+      type: "image",
+      message: "ちゅーピーが呉の旅へ連れて行くよ✨",
+      src: "./kure.jpg"
+    },
+    {
+      el: document.getElementById("fukuyama"),
+      type: "image",
+      message: "ちゅーピーが福山の旅へ連れて行くよ✨",
+      src: "./fukuyama.jpg"
+    },
+    {
+      el: document.getElementById("chugokunp"),
+      type: "image",
+      message: "新しくなった中国新聞デジタルをご紹介！",
+      src: "./chugokunp.jpg"
+    }
+  ];
+
+  let activeTimer = null;
+  let activeTarget = null;
 
   function hideAll() {
     videoOverlay.pause();
@@ -109,80 +165,70 @@
     msg.style.display = "block";
   }
 
-  function showVideo(message, videoSrc) {
+  function showContent(target) {
     hideAll();
 
-    msg.style.display = "block";
-    msg.innerHTML = message;
+    msg.innerHTML = target.message;
     msg.style.background = "yellow";
 
-    videoOverlay.src = videoSrc;
-    videoOverlay.style.display = "block";
-    videoOverlay.load();
+    if (target.type === "video") {
+      videoOverlay.src = target.src;
+      videoOverlay.style.display = "block";
+      videoOverlay.load();
 
-    videoOverlay.onplay = () => {
-      msg.style.display = "none";
-    };
+      videoOverlay.onplay = () => {
+        msg.style.display = "none";
+      };
 
-    videoOverlay.onpause = () => {
-      msg.style.display = "block";
-    };
+      videoOverlay.onpause = () => {
+        msg.style.display = "block";
+      };
 
-    videoOverlay.onended = () => {
-      msg.style.display = "block";
-    };
+      videoOverlay.onended = () => {
+        msg.style.display = "block";
+      };
+    } else {
+      imageOverlay.src = target.src;
+      imageOverlay.style.display = "block";
+    }
   }
 
-  function showImage(message, imageSrc) {
-    hideAll();
+  function startStableDetection(target) {
+    clearTimeout(activeTimer);
+    activeTarget = target;
 
-    msg.style.display = "block";
-    msg.innerHTML = message;
-    msg.style.background = "yellow";
+    msg.innerHTML = "そのまま少し止めてね…";
+    msg.style.background = "#fff34a";
 
-    imageOverlay.src = imageSrc;
-    imageOverlay.style.display = "block";
+    activeTimer = setTimeout(() => {
+      if (activeTarget === target) {
+        showContent(target);
+      }
+    }, 800);
   }
 
-  miyajima.addEventListener("targetFound", () => {
-    showVideo(
-      "ちゅーピーが宮島の旅へ連れて行くよ✨",
-      "./miyajima.mp4"
-    );
-  });
+  function resetDetection() {
+    clearTimeout(activeTimer);
+    activeTarget = null;
 
-  kure.addEventListener("targetFound", () => {
-    showImage(
-      "ちゅーピーが呉の旅へ連れて行くよ✨",
-      "./kure.jpg"
-    );
-  });
-
-  fukuyama.addEventListener("targetFound", () => {
-    showImage(
-      "ちゅーピーが福山の旅へ連れて行くよ✨",
-      "./fukuyama.jpg"
-    );
-  });
-
-  chugokunp.addEventListener("targetFound", () => {
-    showImage(
-      "新しくなった中国新聞デジタルをご紹介！",
-      "./chugokunp.jpg"
-    );
-  });
-
-  function resetMessage() {
     msg.style.display = "block";
-    msg.innerHTML = "ステッカーをもう一度映してね";
+    msg.innerHTML = "ステッカーを1枚だけ大きく映してね";
     msg.style.background = "white";
+
     hideAll();
   }
 
-  miyajima.addEventListener("targetLost", resetMessage);
-  kure.addEventListener("targetLost", resetMessage);
-  fukuyama.addEventListener("targetLost", resetMessage);
-  chugokunp.addEventListener("targetLost", resetMessage);
+  targets.forEach(target => {
+    target.el.addEventListener("targetFound", () => {
+      startStableDetection(target);
+    });
+
+    target.el.addEventListener("targetLost", () => {
+      if (activeTarget === target) {
+        resetDetection();
+      }
+    });
+  });
 </script>
 
 </body>
