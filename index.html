@@ -8,11 +8,27 @@
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
   <style>
+    html,
     body {
       margin: 0;
+      width: 100%;
+      height: 100%;
       overflow: hidden;
       font-family: sans-serif;
       background: #fff;
+    }
+
+    a-scene,
+    canvas {
+      width: 100vw !important;
+      height: 100vh !important;
+    }
+
+    .mindar-ui-overlay,
+    .mindar-ui-scanning,
+    .mindar-ui-loading {
+      width: 100vw !important;
+      height: 100vh !important;
     }
 
     #msg {
@@ -73,11 +89,13 @@
       pointer-events: auto;
     }
 
+    #imageOverlay {
+      background: transparent;
+    }
+
     a-scene {
       position: fixed !important;
       inset: 0 !important;
-      width: 100vw !important;
-      height: 100vh !important;
       pointer-events: none;
     }
   </style>
@@ -197,6 +215,7 @@
     clearTimeout(activeTimer);
     activeTarget = target;
 
+    msg.style.display = "block";
     msg.innerHTML = "そのまま少し止めてね…";
     msg.style.background = "#fff34a";
 
