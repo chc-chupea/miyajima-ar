@@ -8,8 +8,11 @@
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
   <style>
+    html,
     body {
       margin: 0;
+      width: 100%;
+      height: 100%;
       overflow: hidden;
       font-family: sans-serif;
       background: #fff;
@@ -29,15 +32,43 @@
       line-height: 1.5;
     }
 
+    #scanGuide {
+      position: fixed;
+      left: 7vw;
+      right: 7vw;
+      top: 92px;
+      height: 62vh;
+      z-index: 999997;
+      border: 5px dashed rgba(255, 235, 0, 0.95);
+      border-radius: 22px;
+      pointer-events: none;
+      box-sizing: border-box;
+    }
+
+    #scanGuide::before {
+      content: "この枠いっぱいに1枚だけ映してね";
+      position: absolute;
+      top: -42px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-weight: bold;
+      background: rgba(255,255,255,0.9);
+      border-radius: 12px;
+      padding: 8px;
+    }
+
     #videoOverlay,
     #imageOverlay {
       display: none;
       position: fixed;
       left: 50%;
-      top: 52%;
-      transform: translate(-50%, -50%);
+      bottom: 24px;
+      transform: translateX(-50%);
       width: 90vw;
       max-width: 520px;
+      max-height: 34vh;
+      object-fit: contain;
       z-index: 999998;
       border-radius: 18px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.3);
@@ -45,8 +76,21 @@
       pointer-events: auto;
     }
 
+    #imageOverlay {
+      background: transparent;
+    }
+
     a-scene {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
       pointer-events: none;
+    }
+
+    canvas {
+      width: 100vw !important;
+      height: 100vh !important;
     }
   </style>
 </head>
@@ -54,8 +98,10 @@
 <body>
 
 <div id="msg">
-  ステッカーを映してね
+  ステッカーを1枚だけ大きく映してね
 </div>
+
+<div id="scanGuide"></div>
 
 <video
   id="videoOverlay"
@@ -69,7 +115,6 @@
 
 <a-scene
   mindar-image="imageTargetSrc: ./targets.mind; autoStart: true;"
-  embedded
   vr-mode-ui="enabled: false"
   device-orientation-permission-ui="enabled: false">
 
@@ -183,6 +228,34 @@
   kure.addEventListener("targetLost", resetMessage);
   fukuyama.addEventListener("targetLost", resetMessage);
   chugokunp.addEventListener("targetLost", resetMessage);
+
+  function forceCameraFullScreen() {
+    const videos = document.querySelectorAll("video");
+    const canvases = document.querySelectorAll("canvas");
+
+    videos.forEach(v => {
+      if (v.id !== "videoOverlay") {
+        v.style.position = "fixed";
+        v.style.top = "0";
+        v.style.left = "0";
+        v.style.width = "100vw";
+        v.style.height = "100vh";
+        v.style.objectFit = "cover";
+        v.style.zIndex = "1";
+      }
+    });
+
+    canvases.forEach(c => {
+      c.style.position = "fixed";
+      c.style.top = "0";
+      c.style.left = "0";
+      c.style.width = "100vw";
+      c.style.height = "100vh";
+      c.style.zIndex = "2";
+    });
+  }
+
+  setInterval(forceCameraFullScreen, 500);
 </script>
 
 </body>
